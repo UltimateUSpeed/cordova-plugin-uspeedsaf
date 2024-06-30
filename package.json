@@ -1,20 +1,20 @@
 {
-  "name": "@makiwin/cordova-plugin-saf-mediastore",
-  "version": "1.0.14",
-  "description": "Cordova Plugin to read and save files using the Storage Access Framework and Mediastore on Android only.",
+  "name": "cordova-plugin-uspeedsaf",
+  "version": "1.0.0",
+  "description": "Accès système de fichiers Android via Storage Access Framework et Mediastore.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "cordova": {
-    "id": "@makiwin/cordova-plugin-saf-mediastore",
+    "id": "cordova-plugin-uspeedsaf",
     "platforms": [
       "android"
     ]
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/makiwin/cordova-plugin-saf-mediastore.git"
+    "url": "git+https://github.com/ultimateuspeed/cordova-plugin-uspeedsaf.git"
   },
   "keywords": [
     "cordova",
@@ -22,11 +22,11 @@
     "ecosystem:cordova",
     "cordova-android"
   ],
-  "author": "Massimiliano Vinciprova <massimiliano.vinciprova@gmail.com>",
-  "license": "(NPOSL-3.0 OR UNLICENSED)",
+  "author": "USpeed",
+  "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/makiwin/cordova-plugin-saf-mediastore/issues"
+    "url": "https://github.com/ultimateuspeed/cordova-plugin-uspeedsaf/issues"
   },
-  "homepage": "https://github.com/makiwin/cordova-plugin-saf-mediastore#readme",
-  "types": "www/safMediastore.d.ts"
+  "homepage": "https://github.com/ultimateuspeed/cordova-plugin-uspeedsaf",
+  "types": "www/USpeedSaf.d.ts"
 }

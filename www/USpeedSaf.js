@@ -4,7 +4,7 @@ module.exports = (function () {
   function callPromise(name) {
     return function (...params) {
       return new Promise((resolve, reject) =>
-        cordova.exec(resolve, reject, 'SafMediastore', this.name, params)
+        cordova.exec(resolve, reject, 'USpeedSaf', this.name, params)
       );
     }.bind({ name });
   }

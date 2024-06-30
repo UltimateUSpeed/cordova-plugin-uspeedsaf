@@ -1,4 +1,4 @@
-package com.makiwin.saf_mediastore;
+package uspeed;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.FileUtils;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -30,15 +31,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 
-public class SafMediastore extends CordovaPlugin implements ValueCallback<String> {
+public class USpeedSaf extends CordovaPlugin implements ValueCallback<String> {
 	protected CallbackContext callbackContext;
 	protected HashMap<String, String> saveFileData = new HashMap<>();
 	protected CordovaInterface cordovaInterface;
@@ -134,10 +139,11 @@ public class SafMediastore extends CordovaPlugin implements ValueCallback<String
 		try {
 			String uri = args.getString(0);
 			Intent intent = new Intent(Intent.ACTION_VIEW);
-			String[] resourcesUri = this.getRealPathFromURI(Uri.parse(uri));
-			intent.setDataAndType(Uri.parse(uri),
-					MimeTypeMap.getSingleton()
-							.getMimeTypeFromExtension(resourcesUri[0].substring(resourcesUri[0].lastIndexOf('.') + 1)));
+			// String[] resourcesUri = this.getRealPathFromURI(Uri.parse(uri));
+			// intent.setDataAndType(Uri.parse(uri), MimeTypeMap.getSingleton().getMimeTypeFromExtension(resourcesUri[0].substring(resourcesUri[0].lastIndexOf('.') + 1)));
+			String[] info = this.getInfoFromUri(Uri.parse(uri));
+			intent.setDataAndType(Uri.parse(uri), info[0]);
+
 			intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			this.callbackContext = callbackContext;
@@ -437,13 +443,17 @@ public class SafMediastore extends CordovaPlugin implements ValueCallback<String
 			if (!args.isNull(0)) {
 				uri = args.getString(0);
 			}
-			String[] realUri = this.getRealPathFromURI(Uri.parse(uri));
-			JSONObject response = new JSONObject()
-					.put("uri", realUri[0])
-					.put("mimeType",
-							MimeTypeMap.getSingleton()
-									.getMimeTypeFromExtension(realUri[0].substring(uri.lastIndexOf('.') + 1)))
-					.put("filename", realUri[1]);
+			// String[] realUri = this.getRealPathFromURI(Uri.parse(uri));
+			// JSONObject response = new JSONObject()
+			//		.put("uri", realUri[0])
+			//		.put("mimeType",
+			//				MimeTypeMap.getSingleton()
+			//						.getMimeTypeFromExtension(realUri[0].substring(uri.lastIndexOf('.') + 1)))
+			//		.put("filename", realUri[1]);
+
+			String[] info = this.getInfoFromUri(Uri.parse(uri));
+			// ContentResolver contentResolver = cordovaInterface.getContext().getContentResolver();
+			JSONObject response = new JSONObject().put("mimeType", info[0]).put("filename", info[1]);
 			callbackContext.success(response);
 			return true;
 		} catch (Exception e) {
@@ -485,6 +495,9 @@ public class SafMediastore extends CordovaPlugin implements ValueCallback<String
 					callbackContext.error(debugLog("No saveFileData in onActivityResult"));
 					break;
 				}
+
+				this.overwriteDocument(intent.getData(), data, intent);
+				/*
 				try (OutputStream outputStream = cordovaInterface.getContext().getContentResolver()
 						.openOutputStream(intent.getData())) {
 					outputStream.write(Base64.decode(data, Base64.DEFAULT));
@@ -492,9 +505,29 @@ public class SafMediastore extends CordovaPlugin implements ValueCallback<String
 				} catch (Exception e) {
 					callbackContext.error(debugLog(e));
 				}
+				*/
 				break;
 			default:
 				callbackContext.error(debugLog("Invalid request code: " + Action.values()[requestCode].toString()));
+		}
+	}
+
+	private void overwriteDocument(Uri uri, String data, Intent intent) {
+		try {
+			ParcelFileDescriptor pfd = cordovaInterface.getContext().getContentResolver().openFileDescriptor(uri, "w");
+			FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+
+			// Forcer le fichier à être vidé avant d'écrire les nouvelles données
+			FileChannel fChan=fileOutputStream.getChannel();
+			fChan.truncate(0);
+
+			fileOutputStream.write(Base64.decode(data, Base64.DEFAULT));
+			fileOutputStream.close();
+			pfd.close();
+
+			callbackContext.success(intent.getDataString());
+		} catch (Exception e) {
+			callbackContext.error(debugLog(e));
 		}
 	}
 
@@ -541,15 +574,32 @@ public class SafMediastore extends CordovaPlugin implements ValueCallback<String
 		return message;
 	}
 
-	public String[] getRealPathFromURI(Uri contentUri) {
+	// public String[] getRealPathFromURI(Uri contentUri) {
+	//	Cursor cursor = null;
+	//	try {
+	//		cursor = cordovaInterface.getContext().getContentResolver().query(contentUri, null, null, null, null);
+	//		int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+	//		cursor.moveToFirst();
+	//		String[] response = {
+	//				cursor.getString(column_index),
+	//				cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+	//		};
+	//		return response;
+	//	} finally {
+	//		if (cursor != null) {
+	//			cursor.close();
+	//		}
+	//	}
+	// }
+
+	public String[] getInfoFromUri(Uri contentUri) {
 		Cursor cursor = null;
 		try {
-			cursor = cordovaInterface.getContext().getContentResolver().query(contentUri, null, null, null, null);
-			int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+			cursor = cordovaInterface.getContext().getContentResolver().query(contentUri, null, null, null, null);			
 			cursor.moveToFirst();
 			String[] response = {
-					cursor.getString(column_index),
-					cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+					cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE)),
+					cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
 			};
 			return response;
 		} finally {

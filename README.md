@@ -1,112 +1,92 @@
-# cordova-plugin-saf-mediastore
+# cordova-plugin-uspeedsaf
 
-## Read and save files using the Storage Access Framework and Mediastore
+Accès système de fichiers **Android** via *Storage Access Framework* et *Mediastore*.
 
-This plugin allows you to read and save files using the Storage Access Framework and Mediastore on Android only.
+Le code source initial provient des dépôts suivants :
+- [sahusoftcom](https://github.com/sahusoftcom/cordova-documents-provider-read-write) : dépôt initial
+- [customautosys](https://github.com/customautosys/cordova-plugin-saf-mediastore) : fork de **sahusoftcom**
+- [Makiwin](https://github.com/Makiwin/cordova-plugin-saf-mediastore) : fork de **customautosys**
 
-## Available methods
+## Licence
 
-```typescript
-selectFolder(uri:string):Promise<string>
+Le dépôt GitHub initial de [sahusoftcom](https://github.com/sahusoftcom/cordova-documents-provider-read-write) était sous licence [Apache 2.0](./LICENSE.md).  
+J'ai décidé de le laisser sous licence [Apache 2.0](./LICENSE.md) même si [customautosys](https://github.com/customautosys/cordova-plugin-saf-mediastore) s'est permis de la changer en cours de route.  
+
+## Appels
+
+Les appels se sont comme suit :
+```ts
+// returne une "Promise"
+cordova.plugins.USpeedSaf.<function>(params);
+
+// returne les données de la "Promise"
+await cordova.plugins.USpeedSaf.<function>(params);
 ```
 
-Launches an Intent to select a folder to which files can be saved. Returns the content URI.
+## Fonctions disponibles
 
-```typescript
-selectFile(uri:string):Promise<string>
+- Lancement de l'interface native pour choisir un répertoire dans lequel pourrait être sauvegardé un fichier.
+```ts
+selectFolder(uri?: string): Promise<string>;
 ```
 
-Launches an Intent to select a file. Returns the content URI.
-
-```typescript
-openFolder(uri:string):Promise<void>
+- Lancement de l'interface native pour choisir un fichier.
+```ts
+selectFile(uri?: string): Promise<string>;
 ```
 
-Launches an Intent to open a folder in the folder picker.
-
-```typescript
-openFile(uri:string):Promise<void>
+- Lancement de l'interface native pour ouvrir un répertoire.
+```ts
+openFolder(uri: string): Promise<void>;
 ```
 
-Launches an Intent to open a file.
-
-```typescript
-readFile(uri:string):Promise<ArrayBuffer>
+- Lancement de l'interface native pour ouvrir un fichier.
+```ts
+openFile(uri: string): Promise<void>;
 ```
 
-Reads a file as an ArrayBuffer.
-
-```typescript
-writeFile(params:{
-	data:string,
-	filename:string,
-	folder?:string,
-	subFolder?:string
-}):Promise<string>
+- Lecture du contenu d'un fichier vers un `ArrayBuffer`.
+```ts
+readFile(uri: string): Promise<ArrayBuffer>;
 ```
 
-Writes a file to a specific filename, with the folder and subfolder being optional. The subfolder will be created if it does not exist, and the default folder is the Downloads folder (saved via Mediastore). Returns the content URI. `data` is a Base 64 string.
-
-```typescript
-overwriteFile(params:{
-    uri:string,
-    data:string
-}):Promise<string>
+- Écriture d'un fichier.
+```ts
+writeFile(params: USpeedSafWriteParameters): Promise<string>;
 ```
 
-Overwrites a file at a specific content URI. Returns the content URI.
-
-```typescript
-saveFile(params:{
-	data:string,
-	filename?:string,
-	folder?:string
-}):Promise<string>
+- Écrasement d'un fichier existant.
+```ts
+overwriteFile(params: USpeedSafOverwriteParameters): Promise<string>;
 ```
 
-Launches a file picker Intent to save a file, with the preferred filename and folder being optional. Returns the content URI. `data` is a Base 64 string.
-
-```typescript
-deleteFile(uri:string):Promise<number>
+- Lancement de l'interface native pour écrire un fichier.
+```ts
+saveFile(params: USpeedSafSaveParameters): Promise<string>;
 ```
 
-Deletes a file at a specific content URI. Returns the number of files deleted.
-
-```typescript
-getFileName(uri:string):Promise<string>
+- Suppression d'un fichier.
+```ts
+deleteFile(uri: string): Promise<number>;
 ```
 
-Returns the filename of the corresponding content URI.
-
-```typescript
-getUri(params:{
-    folder:string,
-    subFolder?:string,
-    filename?:string,
-}):Promise<string>
+- Accès au nom de fichier à partir de l'URI fournie.
+```ts
+getFileName(uri: string): Promise<string>;
 ```
 
-Returns the content URI of the file in the corresponding folder and subfolder.
+- Accès à l'URI d'un fichier dans le répertoire/sous-répertoire spécifié
+```ts
+getUri(params: USpeedSafGetUriParameters): Promise<string>;
+```
 
-```typescript
+- Vérification de l'existance d'un fichier dans le répertoire `Download`.
+```ts
 existsFile(filename: string): Promise<string>;
 ```
 
-From a filename check if the files exist in the shared download folder return uri of the corresponding file if exists, otherwise return -1
-
-```typescript
-getDataForOpenFile(uri: string): Promise<{
-    uri: string;
-    mimeType: string;
-    filename: string;
-  }>;
+- Accès aux informations d'un fichier à partir d'une URI.
+```ts
+getDataForOpenFile(uri: string): Promise<USpeedSafDataForOpenResult>;
 ```
 
-From Content URI return information about the file
-
-To call methods:
-
-```typescript
-cordova.plugins.safMediastore.<function>(params); //returns a Promise
-await cordova.plugins.safMediastore.<function>(params); //in an async function
-```

@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plugin xmlns:android="http://schemas.android.com/apk/res/android" id="@makiwin/cordova-plugin-saf-mediastore" version="1.0.14"
-	xmlns="http://www.w3.org/ns/plugins">
-
-	<name>cordova-plugin-saf-mediastore</name>
-
+<plugin xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-uspeedsaf" version="1.0.0" xmlns="http://www.w3.org/ns/plugins">
+	<name>cordova-plugin-uspeedsaf</name>
 	<engines>
 		<engine name="cordova" version=">=3.4.0"/>
 	</engines>
 
-	<asset src="www/safMediastore.js" target="js/safMediastore.js"/>
+	<asset src="www/USpeedSaf.js" target="js/USpeedSaf.js"/>
 
-	<js-module name="safMediastore" src="www/safMediastore.js">
-		<clobbers target="cordova.plugins.safMediastore"/>
+	<js-module name="USpeedSaf" src="www/USpeedSaf.js">
+		<clobbers target="cordova.plugins.USpeedSaf"/>
 	</js-module>
 
 	<platform name="android">
 		<config-file parent="/*" target="res/xml/config.xml">
-			<feature name="SafMediastore">
-				<param name="android-package" value="com.makiwin.saf_mediastore.SafMediastore"/>
+			<feature name="USpeedSaf">
+				<param name="android-package" value="uspeed.USpeedSaf"/>
 			</feature>
 		</config-file>
-
 		<config-file parent="/manifest" target="AndroidManifest.xml">
 			<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />                
 			<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />       		
 		</config-file>
-
-		<source-file src="src/android/com/makiwin/saf_mediastore/SafMediastore.java" target-dir="src/com/makiwin/saf_mediastore/"/>
+		<source-file src="src/android/uspeed/USpeedSaf.java" target-dir="src/uspeed/"/>
 	</platform>
 </plugin>
